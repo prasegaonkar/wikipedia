@@ -32,9 +32,7 @@ public class App {
 		new App().run(request);
 	}
 
-	private static final List<String> STOP_WORDS = Arrays.asList("what", "when", "how", "where", "which", "a", "an",
-			"the", "they", "their", "it", "is", "are", "of", "by", "from", "and", "in", "at", "but", "on", "to", "have",
-			"has");
+	private static final String STOP_WORDS = ("what|when|how|where|which|a|an|the|they|their|it|is|are|of|by|from|and|in|at|but|on|to|have|has");
 
 	private static final Map<String, String> ROOT_WORDS = new HashMap<>();
 
@@ -72,14 +70,8 @@ public class App {
 	}
 
 	private String findBestMatchingContent(List<String> wikipediaContentAsList, String question) {
-		Set<String> tokens = Stream.of(question.replaceAll("\\p{Punct}", "").split("\\s"))
-				.filter(this::filterNonRelevantWords).map(word -> {
-					String rootWord = ROOT_WORDS.get(word.toLowerCase());
-					if (rootWord == null) {
-						return word;
-					}
-					return rootWord;
-				}).collect(Collectors.toSet());
+		final Set<String> tokens = tokenize(filterStopWords(question)).stream().map(this::stemmingAndLemmatize)
+				.collect(Collectors.toSet());
 
 		String bestMatchedContent = null;
 		int maxMatchedTokens = 0;
@@ -100,6 +92,22 @@ public class App {
 		return bestMatchedContent;
 	}
 
+	private List<String> tokenize(final String content) {
+		return Stream.of(content.split("\\s+")).collect(Collectors.toList());
+	}
+
+	private String stemmingAndLemmatize(String word) {
+		String rootWord = ROOT_WORDS.get(word.toLowerCase());
+		if (rootWord == null) {
+			return word;
+		}
+		return rootWord;
+	}
+
+	private String filterStopWords(String content) {
+		return content.replaceAll("(?i)\\b(" + STOP_WORDS + ")\\b", "").replaceAll("\\p{Punct}", "").trim();
+	}
+
 	private int getNumberOfMatchedTokens(Set<String> tokens, String content) {
 		AtomicInteger count = new AtomicInteger(0);
 		tokens.forEach(token -> {
@@ -108,10 +116,6 @@ public class App {
 			}
 		});
 		return count.get();
-	}
-
-	private boolean filterNonRelevantWords(String str) {
-		return (false == STOP_WORDS.contains(str.toLowerCase()));
 	}
 
 }
