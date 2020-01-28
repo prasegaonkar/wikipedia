@@ -32,9 +32,9 @@ public class App {
 		new App().run(request);
 	}
 
-	private static final List<String> NON_RELEVANT_WORDS = Arrays.asList("what", "when", "how", "where", "which", "a",
-			"an", "the", "they", "their", "it", "is", "are", "of", "by", "from", "and", "in", "at", "but", "on", "to",
-			"have", "has");
+	private static final List<String> STOP_WORDS = Arrays.asList("what", "when", "how", "where", "which", "a", "an",
+			"the", "they", "their", "it", "is", "are", "of", "by", "from", "and", "in", "at", "but", "on", "to", "have",
+			"has");
 
 	private static final Map<String, String> ROOT_WORDS = new HashMap<>();
 
@@ -54,6 +54,7 @@ public class App {
 				.map(content -> findMatchingAnswerFromJumbledList(content, request.getJumbledAnswersAsList()))
 				.map(String::trim).collect(Collectors.toList());
 
+		System.out.println();
 		for (int i = 0; i < questions.size(); i++) {
 			System.out.println(questions.get(i));
 			System.out.println(sortedAnswers.get(i));
@@ -91,7 +92,6 @@ public class App {
 				bestMatchedContent = Stream.of(bestMatchedContent, content).collect(Collectors.joining("."));
 			}
 		}
-		System.out.println("*****************");
 		System.out.println("Tokens: " + tokens);
 		System.out.println("Best Matched Content: " + bestMatchedContent);
 		System.out.println("Confidence level: " + maxMatchedTokens);
@@ -111,7 +111,7 @@ public class App {
 	}
 
 	private boolean filterNonRelevantWords(String str) {
-		return (false == NON_RELEVANT_WORDS.contains(str.toLowerCase()));
+		return (false == STOP_WORDS.contains(str.toLowerCase()));
 	}
 
 }
