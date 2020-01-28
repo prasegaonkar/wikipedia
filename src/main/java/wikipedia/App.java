@@ -1,11 +1,21 @@
 package wikipedia;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+//crawl/ingest
+//tokenize
+//filter stop words
+//stemming - find root word
+//indexing- map of {root word tokens : content indices (pointers), in order of rank}
+//querying - results in decreasing order of relevance
 
 public class App {
 	public static void main(String[] args) {
@@ -22,9 +32,15 @@ public class App {
 		new App().run(request);
 	}
 
-	private static final List<String> NON_RELEVANT_WORDS = Arrays.asList("zebra", "zebras", "what", "when", "how",
-			"where", "which", "a", "an", "the", "they", "their", "it", "is", "are", "of", "by", "from", "and", "in",
-			"at", "but", "on", "to");
+	private static final List<String> NON_RELEVANT_WORDS = Arrays.asList("what", "when", "how", "where", "which", "a",
+			"an", "the", "they", "their", "it", "is", "are", "of", "by", "from", "and", "in", "at", "but", "on", "to",
+			"have", "has");
+
+	private static final Map<String, String> ROOT_WORDS = new HashMap<>();
+
+	static {
+		ROOT_WORDS.put("zebras", "zebra");
+	}
 
 	public Response run(Request request) {
 
@@ -55,8 +71,15 @@ public class App {
 	}
 
 	private String findBestMatchingContent(List<String> wikipediaContentAsList, String question) {
-		List<String> tokens = Stream.of(question.replaceAll("\\p{Punct}", "").split("\\s"))
-				.filter(this::filterNonRelevantWords).collect(Collectors.toList());
+		Set<String> tokens = Stream.of(question.replaceAll("\\p{Punct}", "").split("\\s"))
+				.filter(this::filterNonRelevantWords).map(word -> {
+					String rootWord = ROOT_WORDS.get(word.toLowerCase());
+					if (rootWord == null) {
+						return word;
+					}
+					return rootWord;
+				}).collect(Collectors.toSet());
+
 		String bestMatchedContent = null;
 		int maxMatchedTokens = 0;
 		for (String content : wikipediaContentAsList) {
@@ -71,12 +94,13 @@ public class App {
 		System.out.println("*****************");
 		System.out.println("Tokens: " + tokens);
 		System.out.println("Best Matched Content: " + bestMatchedContent);
+		System.out.println("Confidence level: " + maxMatchedTokens);
 		System.out.println("Against the question: " + question);
 		System.out.println("*****************");
 		return bestMatchedContent;
 	}
 
-	private int getNumberOfMatchedTokens(List<String> tokens, String content) {
+	private int getNumberOfMatchedTokens(Set<String> tokens, String content) {
 		AtomicInteger count = new AtomicInteger(0);
 		tokens.forEach(token -> {
 			if (content.matches("(?i).*" + token + ".*")) {
