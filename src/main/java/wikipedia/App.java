@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -109,13 +108,7 @@ public class App {
 	}
 
 	private int getNumberOfMatchedTokens(Set<String> tokens, String content) {
-		AtomicInteger count = new AtomicInteger(0);
-		tokens.forEach(token -> {
-			if (content.matches("(?i).*" + token + ".*")) {
-				count.getAndIncrement();
-			}
-		});
-		return count.get();
+		return (int) tokens.stream().filter(token -> content.matches("(?i).*" + token + ".*")).count();
 	}
 
 }
