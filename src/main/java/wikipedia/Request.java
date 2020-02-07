@@ -9,10 +9,6 @@ public class Request {
 	private List<String> questions;
 	private String jumbledAnswers;
 
-	public String getWikipediaContent() {
-		return wikipediaContent;
-	}
-
 	public void setWikipediaContent(String wikipediaContent) {
 		this.wikipediaContent = wikipediaContent;
 	}
@@ -23,10 +19,6 @@ public class Request {
 
 	public void setQuestions(List<String> questions) {
 		this.questions = questions;
-	}
-
-	public String getJumbledAnswers() {
-		return jumbledAnswers;
 	}
 
 	public List<String> getJumbledAnswersAsList() {
