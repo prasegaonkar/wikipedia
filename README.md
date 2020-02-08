@@ -6,7 +6,7 @@
  - Use `maven clean package` to build/package from the sources, which will create `wikipedia.jar` in `target` folder.
  - Run the application as mentioned below. It requires a path to input file (specification of input file, as per the problem statement) as the command line argument.
 
-![alt text](https://raw.githubusercontent.com/prasegaonkar/wikipedia/master/execute.PNG) 
+![alt text](/execute.PNG) 
  
 
 ## Approach
@@ -36,7 +36,7 @@ Search query goes through the stages of `tokenization`, `stop words filtering` a
 
 The results are at the last stage sorted (based on either the matching 'token count' or 'rank').
 
-![alt text](https://raw.githubusercontent.com/prasegaonkar/wikipedia/master/IMG_1261.jpg)
+![alt text](/IMG_1261.jpg)
 
 
 ## Tests and implementation considerations
